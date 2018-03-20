@@ -5,7 +5,6 @@ const _debug = require('debug');
 const errors = require('../errors');
 const BusinessError = require('../businessError');
 
-
 const debugData = _debug('rabbitmq-wrapper:connection:data');
 /**
  * Object that creates a connection with the rabbitMQ server,
@@ -32,7 +31,7 @@ class Connection {
   async connect() {
     // Make connection ro rabbitMq server
     this.conn = await amqp.connect(this.uri);
-    if (!this.conn) throw new Error(Errors.RABBITMQ_ERROR_CONNECTION);
+    if (!this.conn) throw new BusinessError(errors.RABBITMQ_CONNECTION);
     debugData('RabbitMQ connection success: ', this.conn);
 
     return await this.conn.createChannel();

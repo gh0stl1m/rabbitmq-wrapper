@@ -13,10 +13,10 @@
   },
   "scripts": {
     "start": "NODE_ENV=production DEBUG=*:error node ./src/index.js",
-    "test": "ava",
+    "test": "NODE_ENV=test ava src/tests/ --verbose",
     "debug": "NODE_ENV=test DEBUG=rabbitmq-wrapper:* node ./src/index.js"
   },
-  "author": "Santiago Sanchez Taborda",
+  "author": "Santiago Sanchez Taborda <santiago.sanchez.t@gmail.com>",
   "licence": "MIT",
   "dependencies": {
     "amqplib": "0.5.2",
@@ -25,15 +25,5 @@
   },
   "devDependencies": {
     "ava": "0.25.0"
-  },
-  "ava": {
-    "files": [
-      "src/**/*spec.js"
-    ],
-    "concurrency": 5,
-    "failFast": false,
-    "failWithoutAssertions": true,
-    "tap": false,
-    "powerAssert": false
   }
 }

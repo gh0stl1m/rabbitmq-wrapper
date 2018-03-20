@@ -21,4 +21,4 @@ switch (process.env.NODE_ENV) {
 dotenv.config({ path });
 const prefix = environment;
 
-module.exports = dotenv;
+module.exports = prefix;
