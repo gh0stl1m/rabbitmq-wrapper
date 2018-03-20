@@ -1,0 +1,3 @@
+module.exports = {
+  RABBITMQ_CONNECTION: 'RABBITMQ_CONNECTION_ERROR',
+};

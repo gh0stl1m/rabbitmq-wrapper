@@ -1,0 +1,39 @@
+{
+  "name": "rabbitmq-wrapper",
+  "version": "1.0.0",
+  "description": "Module that provide an interface to manage rabbitMQ",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=8.9.4",
+    "npm": ">=5.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gh0stl1m/rabbitmq-wrapper"
+  },
+  "scripts": {
+    "start": "NODE_ENV=production DEBUG=*:error node ./src/index.js",
+    "test": "ava",
+    "debug": "NODE_ENV=test DEBUG=rabbitmq-wrapper:* node ./src/index.js"
+  },
+  "author": "Santiago Sanchez Taborda",
+  "licence": "MIT",
+  "dependencies": {
+    "amqplib": "0.5.2",
+    "debug": "3.1.0",
+    "dotenv": "5.0.1"
+  },
+  "devDependencies": {
+    "ava": "0.25.0"
+  },
+  "ava": {
+    "files": [
+      "src/**/*spec.js"
+    ],
+    "concurrency": 5,
+    "failFast": false,
+    "failWithoutAssertions": true,
+    "tap": false,
+    "powerAssert": false
+  }
+}
