@@ -7,17 +7,23 @@ const errors = require('../errors');
 const BusinessError = require('../businessError');
 const { rabbitMQ: RabbitmqConnection } = require('../drivers');
 
-const debugError = _debug('rabbitmq-wrapper:directExchange:error');
-const debugData = _debug('rabbitmq-wrapper:directExchange:data');
+const debugError = _debug('ampExchangeModule:directExchange:error');
+const debugData = _debug('ampExchangeModule:directExchange:data');
 
 // Instance from rabbitMQ connection
 const rabbitMQConnection = new RabbitmqConnection(config.uri);
 
 /**
+ * Roting Key rules
+ * * (star) can substitute for exactly one word.
+ * # (hash) can substitute for zero or more words.
+ */
+
+/**
  * Object that allow send and receive data to a queue with a direct exchange
  * @class DirectExchange
  */
-class DirectExchange {
+class TopicExchange {
   /**
    * @constructor
    * @param { String } channelName - Name of channel
@@ -33,7 +39,7 @@ class DirectExchange {
     this.waitChann = rabbitMQConnection.connect()
       .then((chann) => {
         chann.prefetch(1);
-        const promiseExchange = chann.assertExchange(this.exchangeName, 'direct', this.options.exchange);
+        const promiseExchange = chann.assertExchange(this.exchangeName, 'topic', this.options.exchange);
         const promiseQueue = chann.assertQueue(this.channelName, this.options.queue);
         return Promise.all([promiseExchange, promiseQueue])
           .then(() => {
@@ -57,7 +63,7 @@ class DirectExchange {
     // Validate errors in queue
     await this._validateAssert();
     const data = JSON.stringify(message);
-    if (!message || !routingKey) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:directExchange');
+    if (!message || !routingKey) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:topicExchange');
 
     await this.queueChann.publish(this.exchangeName, routingKey, Buffer.from(data), options);
   }
@@ -76,8 +82,8 @@ class DirectExchange {
     await this.queueChann.consume(
       this.channelName,
       (message) => {
-        let data;
         debugData('Message received from queue: ', message.content);
+        let data;
         data = JSON.parse(message.content.toString());
         Promise.resolve(callback(data))
           .then(() => {
@@ -94,9 +100,9 @@ class DirectExchange {
     await this.waitChann;
     if (!this.queueChann || this.error) {
       debugError('Error asserting queue: ', this.error);
-      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:directExchange');
+      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:topicExchange');
     }
   }
 }
 
-module.exports = DirectExchange;
+module.exports = TopicExchange;
