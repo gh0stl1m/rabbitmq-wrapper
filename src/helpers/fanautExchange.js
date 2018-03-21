@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 // Utilties
 const config = require('../config/rabbitmq');
 const errors = require('../errors');
-const BusinessError = require('../businessError');
+const ModuleError = require('../moduleError');
 const { rabbitMQ: RabbitmqConnection } = require('../drivers');
 
 const debugError = _debug('rabbitmq-wrapper:fanautExchange:error');
@@ -56,7 +56,7 @@ class FanautExhange {
     // Validate errors in queue
     await this._validateAssert();
     const data = JSON.stringify(message);
-    if (!message) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:fanautExchange');
+    if (!message) throw new ModuleError(errors.FIELDS_REQUIRED, 'helper:fanautExchange');
 
     await this.queueChann.publish(this.exchangeName, '', Buffer.from(data), options);
   }
@@ -91,7 +91,7 @@ class FanautExhange {
     await this.waitChann;
     if (!this.queueChann || this.error) {
       debugError('Error asserting queue: ', this.error);
-      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:fanautExchange');
+      throw new ModuleError(errors.RABBITMQ_CONNECTION, 'helper:fanautExchange');
     }
   }
 }

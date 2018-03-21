@@ -9,10 +9,12 @@ const RabbitMQConn = require('../drivers/rabbitmqConn');
 const DirectExchange = require('../helpers/directExchange');
 const TopicExchange = require('../helpers/topicExchange');
 const FanautExchange = require('../helpers/fanautExchange');
+const WorkQueue = require('../helpers/workQueue');
 
 let directExchange;
 let topicExchange;
 let fanautExchange;
+let workQueue;
 test.before(() => {
   // Instance direct exchange
   directExchange = new DirectExchange({
@@ -29,6 +31,8 @@ test.before(() => {
     channelName: 'testChannFan',
     exchangeName: 'testExchangeFan',
   });
+  // Work queue
+  workQueue = new WorkQueue('workQueueChann');
 });
 
 // You need to be ensure that the rabbitmq server is running
@@ -74,6 +78,19 @@ test.serial('Will send data to "testChannF" with fanaut exchange', async(t) => {
 test.cb('Will receive message "testMessageTopic" from the topic exchange', (t) => {
   const messageReceived = fanautExchange.receiveData((data) => {
     t.deepEqual(data, 'testMessageFanaut');
+    t.end()
+  });
+});
+
+// Work Queue tests
+test.serial('Will send data to "workQueueChann" with work queues', async(t) => {
+  const messageToSend = await workQueue.sendData('testMessageWQ');
+  t.pass();
+});
+
+test.cb('Will receive message "testMessageWQ" with work queues', (t) => {
+  const messageReceived = workQueue.receiveData((data) => {
+    t.deepEqual(data, 'testMessageWQ');
     t.end()
   });
 });

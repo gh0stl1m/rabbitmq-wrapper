@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 // Utilities
 const config = require('../config/rabbitmq');
 const errors = require('../errors');
-const BusinessError = require('../businessError');
+const ModuleError = require('../moduleError');
 const { rabbitMQ: RabbitmqConnection } = require('../drivers');
 
 const debugError = _debug('rabbitmq-wrapper:directExchange:error');
@@ -57,7 +57,7 @@ class DirectExchange {
     // Validate errors in queue
     await this._validateAssert();
     const data = JSON.stringify(message);
-    if (!message || !routingKey) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:directExchange');
+    if (!message || !routingKey) throw new ModuleError(errors.FIELDS_REQUIRED, 'helper:directExchange');
 
     await this.queueChann.publish(this.exchangeName, routingKey, Buffer.from(data), options);
   }
@@ -94,7 +94,7 @@ class DirectExchange {
     await this.waitChann;
     if (!this.queueChann || this.error) {
       debugError('Error asserting queue: ', this.error);
-      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:directExchange');
+      throw new ModuleError(errors.RABBITMQ_CONNECTION, 'helper:directExchange');
     }
   }
 }

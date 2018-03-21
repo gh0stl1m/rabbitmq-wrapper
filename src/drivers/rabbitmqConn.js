@@ -3,7 +3,7 @@ const amqp = require('amqplib');
 const _debug = require('debug');
 // Utilities
 const errors = require('../errors');
-const BusinessError = require('../businessError');
+const ModuleError = require('../moduleError');
 
 const debugData = _debug('rabbitmq-wrapper:connection:data');
 /**
@@ -18,7 +18,7 @@ class Connection {
    */
   constructor(uri) {
     if (!uri) {
-      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'driver:connection');
+      throw new ModuleError(errors.RABBITMQ_CONNECTION, 'driver:connection');
     } else {
       this.uri = uri;
     }
@@ -31,7 +31,7 @@ class Connection {
   async connect() {
     // Make connection ro rabbitMq server
     this.conn = await amqp.connect(this.uri);
-    if (!this.conn) throw new BusinessError(errors.RABBITMQ_CONNECTION);
+    if (!this.conn) throw new ModuleError(errors.RABBITMQ_CONNECTION);
     debugData('RabbitMQ connection success: ', this.conn);
 
     return await this.conn.createChannel();

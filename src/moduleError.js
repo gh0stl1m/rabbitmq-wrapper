@@ -1,8 +1,8 @@
 /**
  * Class that create an error instance
- * @class BussinessError
+ * @class ModuleError
  */
-class BussinessError extends Error {
+class ModuleError extends Error {
   /**
    * @constructor
    * @param {String} message - Error message
@@ -23,4 +23,4 @@ class BussinessError extends Error {
   }
 }
 
-module.exports = BussinessError;
+module.exports = ModuleError;
