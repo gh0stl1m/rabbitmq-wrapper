@@ -52,7 +52,7 @@ class WorkQueue {
     // Validate error in queue
     await this._validateAssert();
     const data = JSON.stringify(message);
-    if (!message) throw new ModuleError(errors.FIELDS_REQUIRED);
+    if (!message) throw new ModuleError(errors.FIELDS_REQUIRED, 'helpers:workqueue');
 
     await this.queueChann.sendToQueue(this.channelName, Buffer.from(data), options);
   }
@@ -86,7 +86,7 @@ class WorkQueue {
     await this.waitChann;
     if (!this.queueChann || this.error) {
       debugError('Error asserting queue: ', this.error);
-      throw new ModuleError(errors.RABBITMQ_CONNECTION);
+      throw new ModuleError(errors.RABBITMQ_CONNECTION, 'helpers:workqueue');
     }
   }
 }
