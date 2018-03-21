@@ -1,29 +1,23 @@
 // Libraries
 const _debug = require('debug');
 const Promise = require('bluebird');
-// Utilities
+// Utilties
 const config = require('../config/rabbitmq');
 const errors = require('../errors');
 const BusinessError = require('../businessError');
 const { rabbitMQ: RabbitmqConnection } = require('../drivers');
 
-const debugError = _debug('rabbitmq-wrapper:topicExchange:error');
-const debugData = _debug('rabbitmq-wrapper:topicExchange:data');
+const debugError = _debug('rabbitmq-wrapper:fanautExchange:error');
+const debugData = _debug('rabbitmq-wrapper:fanautExchange:data');
 
 // Instance from rabbitMQ connection
 const rabbitMQConnection = new RabbitmqConnection(config.uri);
 
 /**
- * Roting Key rules
- * * (star) can substitute for exactly one word.
- * # (hash) can substitute for zero or more words.
+ * Object that allows send and receive data to a queue with fanaut exchange
+ * @class FanautExchange
  */
-
-/**
- * Object that allow send and receive data to a queue with a direct exchange
- * @class DirectExchange
- */
-class TopicExchange {
+class FanautExhange {
   /**
    * @constructor
    * @param { String } channelName - Name of channel
@@ -39,7 +33,7 @@ class TopicExchange {
     this.waitChann = rabbitMQConnection.connect()
       .then((chann) => {
         chann.prefetch(1);
-        const promiseExchange = chann.assertExchange(this.exchangeName, 'topic', this.options.exchange);
+        const promiseExchange = chann.assertExchange(this.exchangeName, 'fanout', this.options.exchange);
         const promiseQueue = chann.assertQueue(this.channelName, this.options.queue);
         return Promise.all([promiseExchange, promiseQueue])
           .then(() => {
@@ -56,29 +50,26 @@ class TopicExchange {
    * Method to send data to queue
    * @function
    * @param { String } message - Message to send
-   * @param { String } routingKey - key to make binding
    * @param { Object } options - Options for message
    */
-  async sendData(message, routingKey, options = {}) {
+  async sendData(message, options = {}) {
     // Validate errors in queue
     await this._validateAssert();
     const data = JSON.stringify(message);
-    if (!message || !routingKey) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:topicExchange');
+    if (!message) throw new BusinessError(errors.FIELDS_REQUIRED, 'helper:fanautExchange');
 
-    await this.queueChann.publish(this.exchangeName, routingKey, Buffer.from(data), options);
+    await this.queueChann.publish(this.exchangeName, '', Buffer.from(data), options);
   }
-
   /**
    * Method to receive data from queue
    * @function
-   * @param { String } routingKey - Key to make binding
    * @param { Function } Function to get message
    * @param { Objetc } options - Options for message
    */
-  async receiveData(routingKey, callback, options = {}) {
+  async receiveData(callback, options = {}) {
     // Validate error in queue
     await this._validateAssert();
-    await this.queueChann.bindQueue(this.channelName, this.exchangeName, routingKey);
+    await this.queueChann.bindQueue(this.channelName, this.exchangeName, '');
     await this.queueChann.consume(
       this.channelName,
       (message) => {
@@ -100,9 +91,9 @@ class TopicExchange {
     await this.waitChann;
     if (!this.queueChann || this.error) {
       debugError('Error asserting queue: ', this.error);
-      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:topicExchange');
+      throw new BusinessError(errors.RABBITMQ_CONNECTION, 'helper:fanautExchange');
     }
   }
 }
 
-module.exports = TopicExchange;
+module.exports = FanautExhange;
